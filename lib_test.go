@@ -300,10 +300,14 @@ func TestOldContract(t *testing.T) {
 
 	// execute
 	info = api.MockInfo("creator", nil)
-	msg := []byte(`{"mint":{"token_id": "token_id", "owner": "creator", "name": "name", "description": "description", "image": "image"}}`)
-	ires, _, err = vm.Execute(checksum, env, info, msg, store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	ires, _, err = vm.Execute(checksum, env, info, []byte(`{"mint":{"token_id": "token_id", "owner": "creator", "name": "name", "description": "description", "image": "image"}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
 	require.NoError(t, err)
 	bytes, _ = json.Marshal(ires)
 	t.Logf("Done excuting contract: %s", bytes)
+
+	// query
+	qres, _, err := vm.Query(checksum, env, []byte(`{"contract_info":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	t.Logf("Done querying contract: %s", qres)
 
 }

@@ -218,7 +218,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-crypto"
 version = "1.1.2"
-source = "git+https://github.com/oraichain/cosmwasm.git?branch=multiwasm-1.1.2#033cb99822fdbae2606d4e848a02b896082f7fe2"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=8bf2b22#8bf2b22c7ae8371f2e61a0c13eb556411a91075f"
 dependencies = [
  "digest 0.10.3",
  "ed25519-zebra",
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-derive"
 version = "1.1.2"
-source = "git+https://github.com/oraichain/cosmwasm.git?branch=multiwasm-1.1.2#033cb99822fdbae2606d4e848a02b896082f7fe2"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=8bf2b22#8bf2b22c7ae8371f2e61a0c13eb556411a91075f"
 dependencies = [
  "syn",
 ]
@@ -238,7 +238,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-std"
 version = "1.1.2"
-source = "git+https://github.com/oraichain/cosmwasm.git?branch=multiwasm-1.1.2#033cb99822fdbae2606d4e848a02b896082f7fe2"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=8bf2b22#8bf2b22c7ae8371f2e61a0c13eb556411a91075f"
 dependencies = [
  "base64",
  "cosmwasm-crypto",
@@ -256,7 +256,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-vm"
 version = "1.1.2"
-source = "git+https://github.com/oraichain/cosmwasm.git?branch=multiwasm-1.1.2#033cb99822fdbae2606d4e848a02b896082f7fe2"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=8bf2b22#8bf2b22c7ae8371f2e61a0c13eb556411a91075f"
 dependencies = [
  "clru",
  "cosmwasm-crypto",
