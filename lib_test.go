@@ -277,3 +277,33 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint64(0), metrics.SizePinnedMemoryCache)
 	require.InEpsilon(t, 5602873, metrics.SizeMemoryCache, 0.18)
 }
+
+func TestOldContract(t *testing.T) {
+	vm := withVM(t)
+	checksum := createTestContract(t, vm, "./testdata/oraichain_nft.wasm")
+
+	deserCost := types.UFraction{Numerator: 1, Denominator: 1}
+	gasMeter1 := api.NewMockGasMeter(TESTING_GAS_LIMIT)
+	// instantiate it with this store
+	store := api.NewLookup(gasMeter1)
+	goapi := api.NewMockAPI()
+	balance := types.Coins{types.NewCoin(250, "orai")}
+	querier := api.DefaultQuerier(api.MOCK_CONTRACT_ADDR, balance)
+
+	// instantiate
+	env := api.MockEnv()
+	info := api.MockInfo("creator", nil)
+	ires, _, err := vm.Instantiate(checksum, env, info, []byte(`{"name": "name", "version": "version", "symbol": "symbol","minter":"creator"}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	bytes, _ := json.Marshal(ires)
+	t.Logf("Done instantiating contract: %s", bytes)
+
+	// execute
+	info = api.MockInfo("creator", nil)
+	msg := []byte(`{"mint":{"token_id": "token_id", "owner": "creator", "name": "name", "description": "description", "image": "image"}}`)
+	ires, _, err = vm.Execute(checksum, env, info, msg, store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	bytes, _ = json.Marshal(ires)
+	t.Logf("Done excuting contract: %s", bytes)
+
+}
