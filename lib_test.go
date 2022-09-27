@@ -306,7 +306,7 @@ func TestOldContract(t *testing.T) {
 	t.Logf("Done excuting contract: %s", bytes)
 
 	// query
-	qres, _, err := vm.Query(checksum, env, []byte(`{"contract_info":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	qres, _, err := vm.Query(checksum, env, []byte(`{"all_tokens":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
 	require.NoError(t, err)
 	t.Logf("Done querying contract: %s", qres)
 
