@@ -1,13 +1,15 @@
 package cosmwasm
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"testing"
+
 	"github.com/CosmWasm/wasmvm/api"
 	"github.com/CosmWasm/wasmvm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"os"
-	"testing"
 )
 
 const TESTING_FEATURES = "staking,stargate"
@@ -219,4 +221,38 @@ func TestGetMetrics(t *testing.T) {
 		SizePinnedMemoryCache:     0,
 		SizeMemoryCache:           3432787,
 	}, metrics)
+}
+
+func TestOldContract(t *testing.T) {
+
+	vm := withVM(t)
+	checksum := createTestContract(t, vm, "./api/testdata/oraichain_nft.wasm")
+
+	gasMeter1 := api.NewMockGasMeter(TESTING_GAS_LIMIT)
+	// instantiate it with this store
+	store := api.NewLookup(gasMeter1)
+	goapi := api.NewMockAPI()
+	balance := types.Coins{types.NewCoin(250, "ATOM")}
+	querier := api.DefaultQuerier(api.MOCK_CONTRACT_ADDR, balance)
+
+	// instantiate
+	env := api.MockEnv()
+	info := api.MockInfo("creator", nil)
+	ires, _, err := vm.Instantiate(checksum, env, info, []byte(`{"name": "name", "version": "version", "symbol": "symbol","minter":"creator"}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT)
+	require.NoError(t, err)
+	bytes, _ := json.Marshal(ires)
+	t.Logf("Done instantiating contract: %s", bytes)
+
+	// execute
+	info = api.MockInfo("creator", nil)
+	ires, _, err = vm.Execute(checksum, env, info, []byte(`{"mint":{"token_id": "token_id", "owner": "creator", "name": "name", "description": "description", "image": "image"}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT)
+	require.NoError(t, err)
+	bytes, _ = json.Marshal(ires)
+	t.Logf("Done excuting contract: %s", bytes)
+
+	// query
+	qres, _, err := vm.Query(checksum, env, []byte(`{"contract_info":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT)
+	require.NoError(t, err)
+	t.Logf("Done querying contract: %s", qres)
+
 }
