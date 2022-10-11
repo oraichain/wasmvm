@@ -290,20 +290,26 @@ func TestOldContract(t *testing.T) {
 	balance := types.Coins{types.NewCoin(250, "orai")}
 	querier := api.DefaultQuerier(api.MOCK_CONTRACT_ADDR, balance)
 
-	// instantiate
 	env := api.MockEnv()
 	info := api.MockInfo("creator", nil)
+
+	// instantiate
 	ires, _, err := vm.Instantiate(checksum, env, info, []byte(`{"name": "name", "version": "version", "symbol": "symbol","minter":"creator"}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
 	require.NoError(t, err)
 	bytes, _ := json.Marshal(ires)
 	t.Logf("Done instantiating contract: %s", bytes)
 
 	// execute
-	info = api.MockInfo("creator", nil)
 	ires, _, err = vm.Execute(checksum, env, info, []byte(`{"mint":{"token_id": "token_id", "owner": "creator", "name": "name", "description": "description", "image": "image"}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
 	require.NoError(t, err)
 	bytes, _ = json.Marshal(ires)
 	t.Logf("Done excuting contract: %s", bytes)
+
+	// execute with sub msg
+	ires, _, err = vm.Execute(checksum, env, info, []byte(`{"send_nft":{"contract": "contract", "token_id": "token_id"}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	bytes, _ = json.Marshal(ires)
+	t.Logf("Done excuting contract with sub msg: %s", bytes)
 
 	// query
 	qres, _, err := vm.Query(checksum, env, []byte(`{"all_tokens":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)

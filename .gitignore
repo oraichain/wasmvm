@@ -12,3 +12,5 @@ lib*.a
 /demo
 tmp
 a.out
+
+target
