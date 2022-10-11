@@ -514,7 +514,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-crypto"
 version = "1.1.4"
-source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#d9ae437750e1d6de121b13d9e9f37031a08a9879"
+source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#b55cb7bc0119789fe7984c79bc8b06aa9b695200"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -535,7 +535,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-derive"
 version = "1.1.4"
-source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#d9ae437750e1d6de121b13d9e9f37031a08a9879"
+source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#b55cb7bc0119789fe7984c79bc8b06aa9b695200"
 dependencies = [
  "syn",
 ]
@@ -543,7 +543,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-std"
 version = "1.1.4"
-source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#d9ae437750e1d6de121b13d9e9f37031a08a9879"
+source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#b55cb7bc0119789fe7984c79bc8b06aa9b695200"
 dependencies = [
  "base64",
  "cosmwasm-crypto",
@@ -561,7 +561,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-vm"
 version = "1.1.4"
-source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#d9ae437750e1d6de121b13d9e9f37031a08a9879"
+source = "git+https://github.com/oraichain/cosmwasm?branch=multiwasm-zk#b55cb7bc0119789fe7984c79bc8b06aa9b695200"
 dependencies = [
  "clru",
  "cosmwasm-crypto",
