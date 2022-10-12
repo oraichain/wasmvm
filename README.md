@@ -93,3 +93,9 @@ We fix the Rust version in the CI and build containers, so the following should 
 - `builders/Dockerfile.*`
 
 For development you should be able to use any reasonably up-to-date Rust stable.
+
+## Build
+
+### Alpine Linux:
+
+make release-build-alpine RUSTFLAGS='-C link-arg=-s' 
