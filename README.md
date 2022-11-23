@@ -93,3 +93,10 @@ We fix the Rust version in the CI and build containers, so the following should 
 - `builders/Dockerfile.*`
 
 For development you should be able to use any reasonably up-to-date Rust stable.
+
+## Build
+
+make release-build-linux RUSTFLAGS='-C link-arg=-s' => md5sum: ; sha256sum: e6f7ef4ddb55da585075bdf19ba00f57722d9fdb43b91c2a5af0ce66c8201473
+make release-build-alpine RUSTFLAGS='-C link-arg=-s' => md5sum: 767ec1695ea6566524e5b3010d1df833; sha256sum: c849af18c15fe0b4d2871be8f03ca5514d04920644213e5b65a3853c3c5cbccf
+make release-build-windows RUSTFLAGS='-C link-arg=-s' => md5sum: ; sha256sum: e11f08a15e95b637dc83de62614964d8f3287738a61f2a0cc580f052a97c3bdd
+make release-build-macos RUSTFLAGS='-C link-arg=-s' => md5sum: ; sha256sum: 1994c34343b46a996ffbc9dab4f229471db952ccb136b24e9cc70fc7890ab4d6
