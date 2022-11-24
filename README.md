@@ -96,6 +96,10 @@ For development you should be able to use any reasonably up-to-date Rust stable.
 
 ## Build
 
-### Alpine Linux:
+make release-build-alpine RUSTFLAGS='-C link-arg=-s' => ec18ef336a5d4448e78d95aad1e9243972e37cd8bae9d7b67f036b0bdbd470b6
 
-make release-build-alpine RUSTFLAGS='-C link-arg=-s' 
+make release-build-linux RUSTFLAGS='-C link-arg=-s' => sha256sum: de3bcbdb6130ddd0ecbe472422c9055559788755be5ef9bba3088fc0747c0631 
+
+make release-build-windows RUSTFLAGS='-C link-arg=-s' => sha256sum: 40f863332988f64bb55034504d043c2734f54284bdd832b4b65fb2c823d70021 
+
+make release-build-macos RUSTFLAGS='-C link-arg=-s' => sha256sum: b3352c94e31ae0e5f45608ef9e8e63a6e1b5707526eb38473c1aa65404eba15a

@@ -26,8 +26,10 @@ default = []
 backtraces = []
 
 [dependencies]
-cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm", branch = "multiwasm-zk", features = ["iterator", "staking", "stargate"] }
-cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm", branch = "multiwasm-zk", features = ["cranelift", "iterator", "staking", "stargate"] }
+
+# commit: https://github.com/oraichain/cosmwasm/commit/254a0355ba80af82448e9c10d56240e601b48c89
+cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm", rev = "254a035", features = ["iterator", "staking", "stargate"] }
+cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm", rev = "254a035", features = ["cranelift", "iterator", "staking", "stargate"] }
 errno = "0.2"
 serde_json = "1.0"
 thiserror = "1.0"
