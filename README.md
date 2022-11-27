@@ -96,10 +96,9 @@ For development you should be able to use any reasonably up-to-date Rust stable.
 
 ## Build
 
-make release-build-alpine RUSTFLAGS='-C link-arg=-s' => ec18ef336a5d4448e78d95aad1e9243972e37cd8bae9d7b67f036b0bdbd470b6
+make release-build
 
-make release-build-linux RUSTFLAGS='-C link-arg=-s' => sha256sum: de3bcbdb6130ddd0ecbe472422c9055559788755be5ef9bba3088fc0747c0631 
-
-make release-build-windows RUSTFLAGS='-C link-arg=-s' => sha256sum: 40f863332988f64bb55034504d043c2734f54284bdd832b4b65fb2c823d70021 
-
-make release-build-macos RUSTFLAGS='-C link-arg=-s' => sha256sum: b3352c94e31ae0e5f45608ef9e8e63a6e1b5707526eb38473c1aa65404eba15a
+sha256sum internal/api/libwasmvm_muslc.a => e3db89a8fb783ffbe0106c8d6ff6fa821d4390ecc62efc1cfb05bb2e25ce14d0
+sha256sum internal/api/libwasmvm.x86_64.so => b82ee52b0f1ef73441876b7667cf7563a85eb7913482d4a773707d3bc10432c4
+sha256sum internal/api/libwasmvm.dylib => 2743505b6a25543d47cfd35a3e16e43946a9c9d72585867007e2e81ec453b234
+sha256sum internal/api/wasmvm.dll => cbafe028a620471b6629c58d497ad8db617ea4651dc64c13849e2055e67bb586
