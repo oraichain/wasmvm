@@ -364,6 +364,12 @@ func TestOldContract(t *testing.T) {
 	bytes, _ = json.Marshal(ires)
 	t.Logf("Done excuting contract with sub msg: %s", bytes)
 
+	// migrate with msg
+	ires, _, err = vm.Migrate(checksum, env, []byte(`{"test_field":"nothing"}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	bytes, _ = json.Marshal(ires)
+	t.Logf("Done migrating contract with msg: %s", bytes)
+
 	// query
 	qres, _, err := vm.Query(checksum, env, []byte(`{"all_tokens":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
 	require.NoError(t, err)
