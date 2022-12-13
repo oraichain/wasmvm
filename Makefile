@@ -102,10 +102,10 @@ update-bindings:
 
 release-build:
 	# Write like this because those must not run in parallel
-	make release-build-alpine
-	make release-build-linux
-	make release-build-macos
-	make release-build-windows
+	# make release-build-alpine RUSTFLAGS='-C link-arg=-s'
+	make release-build-linux RUSTFLAGS='-C link-arg=-s'
+	make release-build-macos RUSTFLAGS='-C link-arg=-s'
+	make release-build-windows RUSTFLAGS='-C link-arg=-s'
 
 test-alpine: release-build-alpine
 # try running go tests using this lib with muslc
