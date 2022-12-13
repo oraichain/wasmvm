@@ -66,7 +66,8 @@ jobs:
 
   libwasmvm_audit:
     docker:
-      # Note: the audit tool can use a more modern Rust version than the build jobs (which should be in sync with the builders)
+      # The audit tool might use a more modern Rust version than the build jobs. See
+      # "Tooling Rust compiler" in docs/COMPILER_VERSIONS.md
       - image: cimg/rust:1.63.0
     steps:
       - checkout
@@ -95,17 +96,24 @@ jobs:
 
   format-go:
     docker:
-      - image: cimg/go:1.17.4
+      - image: cimg/go:1.18.8
     steps:
+      - run:
+          name: Install gofumpt
+          command: go install mvdan.cc/gofumpt@v0.4.0
       - checkout
       - run:
-          name: Check Go formatting
+          name: Check Go formatting with gofmt
           command: |
             [ "$(gofmt -l .)" = "" ] || (gofmt -d . && exit 1)
+      - run:
+          name: Check Go formatting with gofumpt
+          command: |
+            [ "$(gofumpt -l .)" = "" ] || (gofumpt -d . && exit 1)
 
   tidy-go:
     docker:
-      - image: cimg/go:1.17.4
+      - image: cimg/go:1.18.8
     steps:
       - checkout
       - run:
@@ -123,7 +131,7 @@ jobs:
 
   format-scripts:
     docker:
-      - image: cimg/go:1.17.4
+      - image: cimg/go:1.18.8
     steps:
       - run:
           name: Install shfmt
@@ -178,7 +186,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/go:1.17.4
+      - image: cimg/go:1.18.8
     environment:
       GORACE: "halt_on_error=1"
       BUILD_VERSION: $(echo ${CIRCLE_SHA1} | cut -c 1-10)
@@ -224,6 +232,9 @@ jobs:
       - run:
           name: Build shared library for macOS
           command: make release-build-macos
+      - run:
+          name: Build shared library for Windows
+          command: make release-build-windows
       - run:
           name: Debug build results
           command: ls -l ./internal/api

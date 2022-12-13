@@ -6,10 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/CosmWasm/wasmvm/internal/api"
-	"github.com/CosmWasm/wasmvm/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/CosmWasm/wasmvm/internal/api"
+	"github.com/CosmWasm/wasmvm/types"
 )
 
 const (
@@ -20,8 +21,10 @@ const (
 	TESTING_CACHE_SIZE   = 100                     // MiB
 )
 
-const CYBERPUNK_TEST_CONTRACT = "./testdata/cyberpunk.wasm"
-const HACKATOM_TEST_CONTRACT = "./testdata/hackatom.wasm"
+const (
+	CYBERPUNK_TEST_CONTRACT = "./testdata/cyberpunk.wasm"
+	HACKATOM_TEST_CONTRACT  = "./testdata/hackatom.wasm"
+)
 
 func withVM(t *testing.T) *VM {
 	tmpdir, err := ioutil.TempDir("", "wasmvm-testing")
@@ -39,18 +42,69 @@ func withVM(t *testing.T) *VM {
 func createTestContract(t *testing.T, vm *VM, path string) Checksum {
 	wasm, err := ioutil.ReadFile(path)
 	require.NoError(t, err)
-	checksum, err := vm.Create(wasm)
+	checksum, err := vm.StoreCode(wasm)
 	require.NoError(t, err)
 	return checksum
 }
 
-func TestCreateAndGet(t *testing.T) {
+func TestStoreCode(t *testing.T) {
+	vm := withVM(t)
+
+	// Valid hackatom contract
+	{
+		wasm, err := ioutil.ReadFile(HACKATOM_TEST_CONTRACT)
+		require.NoError(t, err)
+		_, err = vm.StoreCode(wasm)
+		require.NoError(t, err)
+	}
+
+	// Valid cyberpunk contract
+	{
+		wasm, err := ioutil.ReadFile(CYBERPUNK_TEST_CONTRACT)
+		require.NoError(t, err)
+		_, err = vm.StoreCode(wasm)
+		require.NoError(t, err)
+	}
+
+	// Valid Wasm with no exports
+	{
+		// echo '(module)' | wat2wasm - -o empty.wasm
+		// hexdump -C < empty.wasm
+
+		wasm := []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
+		_, err := vm.StoreCode(wasm)
+		require.ErrorContains(t, err, "Error during static Wasm validation: Wasm contract doesn't have a memory section")
+	}
+
+	// No Wasm
+	{
+		wasm := []byte("foobar")
+		_, err := vm.StoreCode(wasm)
+		require.ErrorContains(t, err, "Wasm bytecode could not be deserialized")
+	}
+
+	// Empty
+	{
+		wasm := []byte("")
+		_, err := vm.StoreCode(wasm)
+		require.ErrorContains(t, err, "Wasm bytecode could not be deserialized")
+	}
+
+	// Nil
+	{
+		var wasm []byte = nil
+		_, err := vm.StoreCode(wasm)
+		require.ErrorContains(t, err, "Null/Nil argument: wasm")
+	}
+}
+
+func TestStoreCodeAndGet(t *testing.T) {
 	vm := withVM(t)
 
 	wasm, err := ioutil.ReadFile(HACKATOM_TEST_CONTRACT)
 	require.NoError(t, err)
 
-	checksum, err := vm.Create(wasm)
+	checksum, err := vm.StoreCode(wasm)
 	require.NoError(t, err)
 
 	code, err := vm.GetCode(checksum)
@@ -310,6 +364,12 @@ func TestOldContract(t *testing.T) {
 	require.NoError(t, err)
 	bytes, _ = json.Marshal(ires)
 	t.Logf("Done excuting contract with sub msg: %s", bytes)
+
+	// migrate with msg
+	ires, _, err = vm.Migrate(checksum, env, []byte(`{"test_field":"nothing"}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
+	require.NoError(t, err)
+	bytes, _ = json.Marshal(ires)
+	t.Logf("Done migrating contract with msg: %s", bytes)
 
 	// query
 	qres, _, err := vm.Query(checksum, env, []byte(`{"all_tokens":{}}`), store, *goapi, querier, gasMeter1, TESTING_GAS_LIMIT, deserCost)
