@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  orai:
+    container_name: wasmvm
+    image: cosmwasm/go-ext-builder:0014-alpine
+    working_dir: /workspace
+    tty: true
+    entrypoint: tail -f /dev/null
+    volumes:
+      - ./:/workspace      
+
