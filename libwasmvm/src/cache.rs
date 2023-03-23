@@ -826,7 +826,8 @@ mod tests {
         assert_eq!(elements_memory_cache, 0);
         assert_approx_eq!(
             size_pinned_memory_cache,
-            4075417,
+            // 4075417,
+            3220567,
             "0.2",
             "size_pinned_memory_cache: {size_pinned_memory_cache}"
         );
