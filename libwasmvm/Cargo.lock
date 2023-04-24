@@ -463,8 +463,8 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-crypto"
-version = "1.2.3"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=645af22#645af22719b6a7f59998a82095018284f89be9ac"
+version = "1.2.4"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=02c828f#02c828f1afb03efaa58e88b766c390ca5ee4d961"
 dependencies = [
  "ark-bls12-381",
  "ark-bn254",
@@ -487,16 +487,16 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-derive"
-version = "1.2.3"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=645af22#645af22719b6a7f59998a82095018284f89be9ac"
+version = "1.2.4"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=02c828f#02c828f1afb03efaa58e88b766c390ca5ee4d961"
 dependencies = [
  "syn 1.0.109",
 ]
 
 [[package]]
 name = "cosmwasm-std"
-version = "1.2.3"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=645af22#645af22719b6a7f59998a82095018284f89be9ac"
+version = "1.2.4"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=02c828f#02c828f1afb03efaa58e88b766c390ca5ee4d961"
 dependencies = [
  "base64",
  "cosmwasm-crypto",
@@ -514,8 +514,8 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-vm"
-version = "1.2.3"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=645af22#645af22719b6a7f59998a82095018284f89be9ac"
+version = "1.2.4"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=02c828f#02c828f1afb03efaa58e88b766c390ca5ee4d961"
 dependencies = [
  "bitflags",
  "bytecheck",
