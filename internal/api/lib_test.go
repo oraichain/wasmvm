@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,7 +17,7 @@ import (
 )
 
 const (
-	TESTING_CAPABILITIES = "staking,stargate,iterator,cosmwasm_1_1,cosmwasm_1_2"
+	TESTING_CAPABILITIES = "staking,stargate,iterator,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3"
 	TESTING_PRINT_DEBUG  = false
 	TESTING_GAS_LIMIT    = uint64(500_000_000_000) // ~0.5ms
 	TESTING_MEMORY_LIMIT = 32                      // MiB
@@ -86,6 +87,8 @@ func TestStoreCodeAndGetCode(t *testing.T) {
 
 	checksum, err := StoreCode(cache, wasm)
 	require.NoError(t, err)
+	expectedChecksum := sha256.Sum256(wasm)
+	require.Equal(t, expectedChecksum[:], checksum)
 
 	code, err := GetCode(cache, checksum)
 	require.NoError(t, err)
@@ -118,6 +121,23 @@ func TestStoreCodeFailsWithBadData(t *testing.T) {
 	wasm := []byte("some invalid data")
 	_, err := StoreCode(cache, wasm)
 	require.Error(t, err)
+}
+
+func TestStoreCodeUnchecked(t *testing.T) {
+	cache, cleanup := withCache(t)
+	defer cleanup()
+
+	wasm, err := ioutil.ReadFile("../../testdata/hackatom.wasm")
+	require.NoError(t, err)
+
+	checksum, err := StoreCodeUnchecked(cache, wasm)
+	require.NoError(t, err)
+	expectedChecksum := sha256.Sum256(wasm)
+	require.Equal(t, expectedChecksum[:], checksum)
+
+	code, err := GetCode(cache, checksum)
+	require.NoError(t, err)
+	require.Equal(t, wasm, code)
 }
 
 func TestPin(t *testing.T) {
