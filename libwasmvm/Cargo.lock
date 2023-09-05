@@ -468,9 +468,9 @@ dependencies = [
 
 [[package]]
 name = "clru"
-version = "0.4.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "591ff76ca0691bd91c1b0b5b987e5cf93b21ec810ad96665c5a569c60846dd93"
+checksum = "b8191fa7302e03607ff0e237d4246cc043ff5b3cb9409d995172ba3bea16b807"
 
 [[package]]
 name = "const-oid"
@@ -493,8 +493,8 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-crypto"
-version = "1.4.0-rc.1"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=e44e69e#e44e69e150619ba645abf237d24cecc216f982a1"
+version = "1.4.0"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=e92f262a#e92f262a385ce445d5bd7c3bad98cb8a652da4fb"
 dependencies = [
  "ark-bls12-381",
  "ark-bn254",
@@ -517,16 +517,16 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-derive"
-version = "1.4.0-rc.1"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=e44e69e#e44e69e150619ba645abf237d24cecc216f982a1"
+version = "1.4.0"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=e92f262a#e92f262a385ce445d5bd7c3bad98cb8a652da4fb"
 dependencies = [
  "syn 1.0.109",
 ]
 
 [[package]]
 name = "cosmwasm-std"
-version = "1.4.0-rc.1"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=e44e69e#e44e69e150619ba645abf237d24cecc216f982a1"
+version = "1.4.0"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=e92f262a#e92f262a385ce445d5bd7c3bad98cb8a652da4fb"
 dependencies = [
  "base64",
  "bnum",
@@ -544,8 +544,8 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-vm"
-version = "1.4.0-rc.1"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=e44e69e#e44e69e150619ba645abf237d24cecc216f982a1"
+version = "1.4.0"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=e92f262a#e92f262a385ce445d5bd7c3bad98cb8a652da4fb"
 dependencies = [
  "bitflags",
  "bytecheck",
@@ -2405,7 +2405,7 @@ dependencies = [
 
 [[package]]
 name = "wasmvm"
-version = "1.4.0-rc.1"
+version = "1.4.0"
 dependencies = [
  "cbindgen",
  "cosmwasm-std",
