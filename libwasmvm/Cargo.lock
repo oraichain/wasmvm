@@ -494,7 +494,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-crypto"
 version = "1.4.0"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=059a72d#059a72d69d6ee250e0168d0315b0fb21d99ee760"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=c13be3fc#c13be3fc08958e8fb58025bc0390e69a155d5e7b"
 dependencies = [
  "ark-bls12-381",
  "ark-bn254",
@@ -507,6 +507,7 @@ dependencies = [
  "arkworks-native-gadgets",
  "arkworks-utils",
  "digest 0.10.7",
+ "ecdsa",
  "ed25519-zebra",
  "k256",
  "rand_core 0.6.4",
@@ -518,7 +519,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-derive"
 version = "1.4.0"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=059a72d#059a72d69d6ee250e0168d0315b0fb21d99ee760"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=c13be3fc#c13be3fc08958e8fb58025bc0390e69a155d5e7b"
 dependencies = [
  "syn 1.0.109",
 ]
@@ -526,7 +527,7 @@ dependencies = [
 [[package]]
 name = "cosmwasm-std"
 version = "1.4.0"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=059a72d#059a72d69d6ee250e0168d0315b0fb21d99ee760"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=c13be3fc#c13be3fc08958e8fb58025bc0390e69a155d5e7b"
 dependencies = [
  "base64",
  "bnum",
@@ -539,13 +540,14 @@ dependencies = [
  "serde",
  "serde-json-wasm",
  "sha2 0.10.7",
+ "static_assertions",
  "thiserror",
 ]
 
 [[package]]
 name = "cosmwasm-vm"
 version = "1.4.0"
-source = "git+https://github.com/oraichain/cosmwasm.git?rev=059a72d#059a72d69d6ee250e0168d0315b0fb21d99ee760"
+source = "git+https://github.com/oraichain/cosmwasm.git?rev=c13be3fc#c13be3fc08958e8fb58025bc0390e69a155d5e7b"
 dependencies = [
  "bitflags",
  "bytecheck",
@@ -1927,6 +1929,12 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strsim"
