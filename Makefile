@@ -10,6 +10,8 @@ USER_GROUP = $(shell id -g)
 
 SHARED_LIB_SRC = "" # File name of the shared library as created by the Rust build system
 SHARED_LIB_DST = "" # File name of the shared library that we store
+CARGO_TARGET_DIR = $(shell echo $${CARGO_TARGET_DIR:-libwasmvm/target})
+
 ifeq ($(OS),Windows_NT)
 	SHARED_LIB_SRC = wasmvm.dll
 	SHARED_LIB_DST = wasmvm.dll
@@ -27,7 +29,7 @@ endif
 
 test-filenames:
 	echo $(SHARED_LIB_DST)
-	echo $(SHARED_LIB_SRC)
+	echo $(SHARED_LIB_SRC)	
 
 all: build test
 
@@ -39,7 +41,7 @@ build-rust: build-rust-release
 # In order to use "--features backtraces" here we need a Rust nightly toolchain, which we don't have by default
 build-rust-debug:
 	(cd libwasmvm && cargo build)
-	cp libwasmvm/target/debug/$(SHARED_LIB_SRC) internal/api/$(SHARED_LIB_DST)
+	cp $(CARGO_TARGET_DIR)/debug/$(SHARED_LIB_SRC) internal/api/$(SHARED_LIB_DST)
 	make update-bindings
 
 # use release build to actually ship - smaller and much faster
@@ -48,7 +50,7 @@ build-rust-debug:
 # enable stripping through cargo (if that is desired).
 build-rust-release:
 	(cd libwasmvm && cargo build --release)
-	cp libwasmvm/target/release/$(SHARED_LIB_SRC) internal/api/$(SHARED_LIB_DST)
+	cp $(CARGO_TARGET_DIR)/release/$(SHARED_LIB_SRC) internal/api/$(SHARED_LIB_DST)
 	make update-bindings
 	@ #this pulls out ELF symbols, 80% size reduction!
 
