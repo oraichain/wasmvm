@@ -351,6 +351,7 @@ func TestGetMetrics(t *testing.T) {
 }
 
 func TestOldContract(t *testing.T) {
+
 	vm := withVM(t)
 	checksum := createTestContract(t, vm, "./testdata/oraichain_nft.wasm")
 

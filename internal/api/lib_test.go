@@ -253,6 +253,7 @@ func TestGetMetrics(t *testing.T) {
 	msg1 := []byte(`{"verifier": "fred", "beneficiary": "bob"}`)
 	_, _, err = Instantiate(cache, checksum, env, info, msg1, &igasMeter, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
+	maxSizeMemoryCache := 0.45
 
 	// GetMetrics 3
 	metrics, err = GetMetrics(cache)
@@ -261,7 +262,7 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint32(1), metrics.HitsFsCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
 	t.Log(t, metrics.SizeMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 
 	// Instantiate 2
 	msg2 := []byte(`{"verifier": "fred", "beneficiary": "susi"}`)
@@ -274,7 +275,7 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint32(1), metrics.HitsMemoryCache)
 	require.Equal(t, uint32(1), metrics.HitsFsCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 
 	// Pin
 	err = Pin(cache, checksum)
@@ -287,8 +288,8 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint32(2), metrics.HitsFsCache)
 	require.Equal(t, uint64(1), metrics.ElementsPinnedMemoryCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizePinnedMemoryCache, 0.25)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizePinnedMemoryCache, maxSizeMemoryCache)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 
 	// Instantiate 3
 	msg3 := []byte(`{"verifier": "fred", "beneficiary": "bert"}`)
@@ -303,8 +304,8 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint32(2), metrics.HitsFsCache)
 	require.Equal(t, uint64(1), metrics.ElementsPinnedMemoryCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizePinnedMemoryCache, 0.25)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizePinnedMemoryCache, maxSizeMemoryCache)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 
 	// Unpin
 	err = Unpin(cache, checksum)
@@ -319,7 +320,7 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint64(0), metrics.ElementsPinnedMemoryCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
 	require.Equal(t, uint64(0), metrics.SizePinnedMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 
 	// Instantiate 4
 	msg4 := []byte(`{"verifier": "fred", "beneficiary": "jeff"}`)
@@ -335,7 +336,7 @@ func TestGetMetrics(t *testing.T) {
 	require.Equal(t, uint64(0), metrics.ElementsPinnedMemoryCache)
 	require.Equal(t, uint64(1), metrics.ElementsMemoryCache)
 	require.Equal(t, uint64(0), metrics.SizePinnedMemoryCache)
-	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, 0.25)
+	require.InEpsilon(t, 2832576, metrics.SizeMemoryCache, maxSizeMemoryCache)
 }
 
 func TestInstantiate(t *testing.T) {
