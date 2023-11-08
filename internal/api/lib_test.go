@@ -364,7 +364,7 @@ func TestInstantiate(t *testing.T) {
 	res, cost, err := Instantiate(cache, checksum, env, info, msg, &igasMeter, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
 	requireOkResponse(t, res, 0)
-	assert.Equal(t, uint64(0x13a78a36c), cost.UsedInternally)
+	assert.Equal(t, uint64(0x5088ea), cost.UsedInternally)
 
 	var result types.ContractResult
 	err = json.Unmarshal(res, &result)
@@ -395,7 +395,7 @@ func TestExecute(t *testing.T) {
 	diff := time.Since(start)
 	require.NoError(t, err)
 	requireOkResponse(t, res, 0)
-	assert.Equal(t, uint64(0x13a78a36c), cost.UsedInternally)
+	assert.Equal(t, uint64(0x5088ea), cost.UsedInternally)
 	t.Logf("Time (%d gas): %s\n", cost.UsedInternally, diff)
 
 	// execute with the same store
@@ -408,7 +408,7 @@ func TestExecute(t *testing.T) {
 	res, cost, err = Execute(cache, checksum, env, info, []byte(`{"release":{}}`), &igasMeter2, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	diff = time.Since(start)
 	require.NoError(t, err)
-	assert.Equal(t, uint64(0x222892d70), cost.UsedInternally)
+	assert.Equal(t, uint64(0x8be9c6), cost.UsedInternally)
 	t.Logf("Time (%d gas): %s\n", cost.UsedInternally, diff)
 
 	// make sure it read the balance properly and we got 250 atoms
@@ -516,7 +516,7 @@ func TestExecuteCpuLoop(t *testing.T) {
 	diff := time.Since(start)
 	require.NoError(t, err)
 	requireOkResponse(t, res, 0)
-	assert.Equal(t, uint64(0xd45091d0), cost.UsedInternally)
+	assert.Equal(t, uint64(0x365a42), cost.UsedInternally)
 	t.Logf("Time (%d gas): %s\n", cost.UsedInternally, diff)
 
 	// execute a cpu loop
@@ -667,7 +667,7 @@ func TestMultipleInstances(t *testing.T) {
 	require.NoError(t, err)
 	requireOkResponse(t, res, 0)
 	// we now count wasm gas charges and db writes
-	assert.Equal(t, uint64(0x138559c5c), cost.UsedInternally)
+	assert.Equal(t, uint64(0x4ffce0), cost.UsedInternally)
 
 	// instance2 controlled by mary
 	gasMeter2 := NewMockGasMeter(TESTING_GAS_LIMIT)
@@ -678,14 +678,14 @@ func TestMultipleInstances(t *testing.T) {
 	res, cost, err = Instantiate(cache, checksum, env, info, msg, &igasMeter2, store2, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
 	requireOkResponse(t, res, 0)
-	assert.Equal(t, uint64(0x1399177bc), cost.UsedInternally)
+	assert.Equal(t, uint64(0x504dbc), cost.UsedInternally)
 
 	// fail to execute store1 with mary
-	resp := exec(t, cache, checksum, "mary", store1, api, querier, 0x1218ff5d0)
+	resp := exec(t, cache, checksum, "mary", store1, api, querier, 0x4a20c2)
 	require.Equal(t, "Unauthorized", resp.Err)
 
 	// succeed to execute store1 with fred
-	resp = exec(t, cache, checksum, "fred", store1, api, querier, 0x22188d470)
+	resp = exec(t, cache, checksum, "fred", store1, api, querier, 0x8ba826)
 	require.Equal(t, "", resp.Err)
 	require.Equal(t, 1, len(resp.Ok.Messages))
 	attributes := resp.Ok.Attributes
@@ -694,7 +694,7 @@ func TestMultipleInstances(t *testing.T) {
 	require.Equal(t, "bob", attributes[1].Value)
 
 	// succeed to execute store2 with mary
-	resp = exec(t, cache, checksum, "mary", store2, api, querier, 0x2220900f0)
+	resp = exec(t, cache, checksum, "mary", store2, api, querier, 0x8bc8f6)
 	require.Equal(t, "", resp.Err)
 	require.Equal(t, 1, len(resp.Ok.Messages))
 	attributes = resp.Ok.Attributes
