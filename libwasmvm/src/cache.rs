@@ -72,12 +72,12 @@ fn do_init_cache(
             .try_into()
             .expect("Cannot convert u32 to usize. What kind of system is this?"),
     );
-    let options = CacheOptions {
-        base_dir: dir_str.into(),
-        available_capabilities: capabilities,
+    let options = CacheOptions::new(
+        dir_str,
+        capabilities,
         memory_cache_size,
         instance_memory_limit,
-    };
+    );
     let cache = unsafe { Cache::new(options) }?;
     let out = Box::new(cache);
     Ok(Box::into_raw(out))

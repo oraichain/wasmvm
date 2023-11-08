@@ -1,6 +1,6 @@
 [package]
 name = "wasmvm"
-version = "1.4.1"
+version = "1.5.0"
 publish = false
 authors = ["Ethan Frey <ethanfrey@users.noreply.github.com>"]
 edition = "2021"
@@ -26,12 +26,12 @@ default = []
 backtraces = []
 
 [dependencies]
-cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm.git", rev = "94fd1452", features = [
+cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm.git", rev = "ae4f40f", features = [
     "iterator",
     "staking",
     "stargate",
 ] }
-cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm.git", rev = "94fd1452", features = [
+cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm.git", rev = "ae4f40f", features = [
     "cranelift",
     "iterator",
     "staking",
