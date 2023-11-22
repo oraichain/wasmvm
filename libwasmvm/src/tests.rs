@@ -9,7 +9,6 @@ use cosmwasm_vm::{
 };
 
 static CYBERPUNK: &[u8] = include_bytes!("../../testdata/cyberpunk.wasm");
-const PRINT_DEBUG: bool = false;
 const MEMORY_CACHE_SIZE: Size = Size::mebi(200);
 const MEMORY_LIMIT: Size = Size::mebi(32);
 const GAS_LIMIT: u64 = 200_000_000_000; // ~0.2ms
@@ -27,7 +26,6 @@ fn handle_cpu_loop_with_cache() {
 
     let options = InstanceOptions {
         gas_limit: GAS_LIMIT,
-        print_debug: PRINT_DEBUG,
     };
 
     // store code

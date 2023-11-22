@@ -1,16 +1,15 @@
 //! A module containing calls into smart contracts via Cache and Instance.
 
-use std::convert::TryInto;
-use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::time::SystemTime;
-use time::{format_description::well_known::Rfc3339, OffsetDateTime};
-
 use cosmwasm_vm::{
     call_execute_raw, call_ibc_channel_close_raw, call_ibc_channel_connect_raw,
     call_ibc_channel_open_raw, call_ibc_packet_ack_raw, call_ibc_packet_receive_raw,
     call_ibc_packet_timeout_raw, call_instantiate_raw, call_migrate_raw, call_query_raw,
-    call_reply_raw, call_sudo_raw, Backend, Cache, Checksum, Instance, InstanceOptions, VmResult,
+    call_reply_raw, call_sudo_raw, Backend, Cache, Instance, InstanceOptions, VmResult,
 };
+use std::convert::TryInto;
+use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::time::SystemTime;
+use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 use crate::api::GoApi;
 use crate::args::{ARG1, ARG2, ARG3, CACHE_ARG, CHECKSUM_ARG, GAS_REPORT_ARG};
@@ -458,18 +457,16 @@ fn do_call_2_args(
     gas_report: Option<&mut GasReport>,
 ) -> Result<Vec<u8>, Error> {
     let gas_report = gas_report.ok_or_else(|| Error::empty_arg(GAS_REPORT_ARG))?;
-    let checksum: Checksum = checksum
+    let checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()?;
+        .try_into()
+        .map_err(Error::vm_err)?;
     let arg1 = arg1.read().ok_or_else(|| Error::unset_arg(ARG1))?;
     let arg2 = arg2.read().ok_or_else(|| Error::unset_arg(ARG2))?;
 
     let backend = into_backend(db, api, querier);
-    let options = InstanceOptions {
-        gas_limit,
-        print_debug,
-    };
+    let options = InstanceOptions { gas_limit };
     let mut instance = cache.get_instance(&checksum, backend, options)?;
 
     // If print_debug = false, use default debug handler from cosmwasm-vm, which discards messages
@@ -554,19 +551,17 @@ fn do_call_3_args(
     gas_report: Option<&mut GasReport>,
 ) -> Result<Vec<u8>, Error> {
     let gas_report = gas_report.ok_or_else(|| Error::empty_arg(GAS_REPORT_ARG))?;
-    let checksum: Checksum = checksum
+    let checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()?;
+        .try_into()
+        .map_err(Error::vm_err)?;
     let arg1 = arg1.read().ok_or_else(|| Error::unset_arg(ARG1))?;
     let arg2 = arg2.read().ok_or_else(|| Error::unset_arg(ARG2))?;
     let arg3 = arg3.read().ok_or_else(|| Error::unset_arg(ARG3))?;
 
     let backend = into_backend(db, api, querier);
-    let options = InstanceOptions {
-        gas_limit,
-        print_debug,
-    };
+    let options = InstanceOptions { gas_limit };
     let mut instance = cache.get_instance(&checksum, backend, options)?;
 
     // If print_debug = false, use default debug handler from cosmwasm-vm, which discards messages
