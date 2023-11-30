@@ -2,8 +2,9 @@
 
 # Builds the Rust library libwasmvm
 BUILDERS_PREFIX := cosmwasm/go-ext-builder:0017
-# Contains a full Go dev environment in order to run Go tests on the built library
-ALPINE_TESTER := cosmwasm/go-ext-builder:0017-alpine
+# Contains a full Go dev environment including CGO support in order to run Go tests on the built shared library
+# This image is currently not published.
+ALPINE_TESTER := cosmwasm/alpine-tester:local
 
 USER_ID := $(shell id -u)
 USER_GROUP = $(shell id -g)
@@ -64,7 +65,7 @@ test:
 
 test-safety:
 	# Use package list mode to include all subdirectores. The -count=1 turns off caching.
-	GODEBUG=cgocheck=2 go test -race -v -count=1 ./...
+	GOEXPERIMENT=cgocheck2 go test -race -v -count=1 ./...
 
 # Creates a release build in a containerized build environment of the static library for Alpine Linux (.a)
 release-build-alpine:
@@ -125,7 +126,12 @@ release-build:
 	make release-build-macos RUSTFLAGS='-C link-arg=-s'
 	make release-build-windows RUSTFLAGS='-C link-arg=-s'
 
-test-alpine: release-build-alpine
+.PHONY: create-tester-image
+create-tester-image:
+	docker build -t $(ALPINE_TESTER) - < ./Dockerfile.alpine_tester
+
+test-alpine: release-build-alpine create-tester-image
+	@[ "$(shell uname -m)" = "x86_64" ] || (echo "This test is only working on x86_64. See https://github.com/CosmWasm/wasmvm/issues/483."; exit 78)
 # try running go tests using this lib with muslc
 	docker run --rm -u $(USER_ID):$(USER_GROUP) -v $(shell pwd):/mnt/testrun -w /mnt/testrun $(ALPINE_TESTER) go build -tags muslc ./...
 # Use package list mode to include all subdirectores. The -count=1 turns off caching.

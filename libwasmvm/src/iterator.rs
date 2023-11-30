@@ -4,6 +4,7 @@ use cosmwasm_vm::{BackendError, BackendResult, GasInfo};
 use crate::error::GoError;
 use crate::gas_meter::gas_meter_t;
 use crate::memory::UnmanagedVector;
+use crate::vtables::Vtable;
 
 // Iterator maintains integer references to some tables on the Go side
 #[repr(C)]
@@ -18,7 +19,7 @@ pub struct iterator_t {
 // and then check it when converting to GoError manually
 #[repr(C)]
 #[derive(Default)]
-pub struct Iterator_vtable {
+pub struct IteratorVtable {
     pub next: Option<
         extern "C" fn(
             iterator_t,
@@ -49,29 +50,34 @@ pub struct Iterator_vtable {
     >,
 }
 
+impl Vtable for IteratorVtable {}
+
 #[repr(C)]
 pub struct GoIter {
     pub gas_meter: *mut gas_meter_t,
     pub state: iterator_t,
-    pub vtable: Iterator_vtable,
+    pub vtable: IteratorVtable,
 }
 
 impl GoIter {
-    pub fn new(gas_meter: *mut gas_meter_t) -> Self {
+    /// Creates an incomplete GoIter with unset fields.
+    /// This is not ready to be used until those fields are set.
+    ///
+    /// This is needed to create a correct instance in Rust
+    /// which is then filled in Go (see `fn scan`).
+    pub fn stub() -> Self {
         GoIter {
-            gas_meter,
+            gas_meter: std::ptr::null_mut(),
             state: iterator_t::default(),
-            vtable: Iterator_vtable::default(),
+            vtable: IteratorVtable::default(),
         }
     }
 
     pub fn next(&mut self) -> BackendResult<Option<Record>> {
-        let Some(next) = self.vtable.next else {
-            let result = Err(BackendError::unknown(
-                "iterator vtable function 'next' not set",
-            ));
-            return (result, GasInfo::free());
-        };
+        let next = self
+            .vtable
+            .next
+            .expect("iterator vtable function 'next' not set");
 
         let mut output_key = UnmanagedVector::default();
         let mut output_value = UnmanagedVector::default();
@@ -116,22 +122,18 @@ impl GoIter {
     }
 
     pub fn next_key(&mut self) -> BackendResult<Option<Vec<u8>>> {
-        let Some(next_key) = self.vtable.next_key else {
-            let result = Err(BackendError::unknown(
-                "iterator vtable function 'next_key' not set",
-            ));
-            return (result, GasInfo::free());
-        };
+        let next_key = self
+            .vtable
+            .next_key
+            .expect("iterator vtable function 'next_key' not set");
         self.next_key_or_val(next_key)
     }
 
     pub fn next_value(&mut self) -> BackendResult<Option<Vec<u8>>> {
-        let Some(next_value) = self.vtable.next_value else {
-            let result = Err(BackendError::unknown(
-                "iterator vtable function 'next_value' not set",
-            ));
-            return (result, GasInfo::free());
-        };
+        let next_value = self
+            .vtable
+            .next_value
+            .expect("iterator vtable function 'next_value' not set");
         self.next_key_or_val(next_value)
     }
 
@@ -171,5 +173,27 @@ impl GoIter {
         }
 
         (Ok(output), gas_info)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn goiter_stub_works() {
+        // can be created and dropped
+        {
+            let _iter = GoIter::stub();
+        }
+
+        // creates an all null-instance
+        let iter = GoIter::stub();
+        assert!(iter.gas_meter.is_null());
+        assert_eq!(iter.state.call_id, 0);
+        assert_eq!(iter.state.iterator_index, 0);
+        assert!(iter.vtable.next.is_none());
+        assert!(iter.vtable.next_key.is_none());
+        assert!(iter.vtable.next_value.is_none());
     }
 }
