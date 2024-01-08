@@ -1,10 +1,9 @@
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use std::convert::TryInto;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::str::from_utf8;
 
-use cosmwasm_std::Checksum;
-use cosmwasm_vm::{capabilities_from_csv, Cache, CacheOptions, Size};
+use cosmwasm_vm::{capabilities_from_csv, Cache, CacheOptions, Checksum, Size};
 
 use crate::api::GoApi;
 use crate::args::{AVAILABLE_CAPABILITIES_ARG, CACHE_ARG, CHECKSUM_ARG, DATA_DIR_ARG, WASM_ARG};
@@ -138,11 +137,10 @@ fn do_remove_wasm(
     cache: &mut Cache<GoApi, GoStorage, GoQuerier>,
     checksum: ByteSliceView,
 ) -> Result<(), Error> {
-    let checksum = checksum
+    let checksum: Checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()
-        .map_err(Error::vm_err)?;
+        .try_into()?;
     cache.remove_wasm(&checksum)?;
     Ok(())
 }
@@ -169,11 +167,10 @@ fn do_load_wasm(
     cache: &mut Cache<GoApi, GoStorage, GoQuerier>,
     checksum: ByteSliceView,
 ) -> Result<Vec<u8>, Error> {
-    let checksum = checksum
+    let checksum: Checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()
-        .map_err(Error::vm_err)?;
+        .try_into()?;
     let wasm = cache.load_wasm(&checksum)?;
     Ok(wasm)
 }
@@ -200,11 +197,10 @@ fn do_pin(
     cache: &mut Cache<GoApi, GoStorage, GoQuerier>,
     checksum: ByteSliceView,
 ) -> Result<(), Error> {
-    let checksum = checksum
+    let checksum: Checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()
-        .map_err(Error::vm_err)?;
+        .try_into()?;
     cache.pin(&checksum)?;
     Ok(())
 }
@@ -231,11 +227,10 @@ fn do_unpin(
     cache: &mut Cache<GoApi, GoStorage, GoQuerier>,
     checksum: ByteSliceView,
 ) -> Result<(), Error> {
-    let checksum = checksum
+    let checksum: Checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()
-        .map_err(Error::vm_err)?;
+        .try_into()?;
     cache.unpin(&checksum)?;
     Ok(())
 }
@@ -259,7 +254,6 @@ impl From<cosmwasm_vm::AnalysisReport> for AnalysisReport {
         let cosmwasm_vm::AnalysisReport {
             has_ibc_entry_points,
             required_capabilities,
-            ..
         } = report;
 
         let required_capabilities_utf8 = set_to_csv(required_capabilities).into_bytes();
@@ -270,7 +264,7 @@ impl From<cosmwasm_vm::AnalysisReport> for AnalysisReport {
     }
 }
 
-fn set_to_csv(set: BTreeSet<String>) -> String {
+fn set_to_csv(set: HashSet<String>) -> String {
     let mut list: Vec<String> = set.into_iter().collect();
     list.sort_unstable();
     list.join(",")
@@ -297,11 +291,10 @@ fn do_analyze_code(
     cache: &mut Cache<GoApi, GoStorage, GoQuerier>,
     checksum: ByteSliceView,
 ) -> Result<AnalysisReport, Error> {
-    let checksum = checksum
+    let checksum: Checksum = checksum
         .read()
         .ok_or_else(|| Error::unset_arg(CHECKSUM_ARG))?
-        .try_into()
-        .map_err(Error::vm_err)?;
+        .try_into()?;
     let report = cache.analyze(&checksum)?;
     Ok(report.into())
 }
@@ -745,13 +738,13 @@ mod tests {
 
     #[test]
     fn set_to_csv_works() {
-        assert_eq!(set_to_csv(BTreeSet::new()), "");
+        assert_eq!(set_to_csv(HashSet::new()), "");
         assert_eq!(
-            set_to_csv(BTreeSet::from_iter(vec!["foo".to_string()])),
+            set_to_csv(HashSet::from_iter(vec!["foo".to_string()])),
             "foo",
         );
         assert_eq!(
-            set_to_csv(BTreeSet::from_iter(vec![
+            set_to_csv(HashSet::from_iter(vec![
                 "foo".to_string(),
                 "bar".to_string(),
                 "baz".to_string(),
@@ -759,7 +752,7 @@ mod tests {
             "bar,baz,foo",
         );
         assert_eq!(
-            set_to_csv(BTreeSet::from_iter(vec![
+            set_to_csv(HashSet::from_iter(vec![
                 "a".to_string(),
                 "aa".to_string(),
                 "b".to_string(),

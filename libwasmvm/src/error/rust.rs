@@ -211,8 +211,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cosmwasm_std::Checksum;
-    use cosmwasm_vm::BackendError;
+    use cosmwasm_vm::{BackendError, Checksum};
     use errno::errno;
     use std::str;
 

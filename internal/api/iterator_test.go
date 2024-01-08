@@ -182,17 +182,17 @@ func TestQueueIteratorSimple(t *testing.T) {
 	env := MockEnvBin(t)
 	data, _, err := Query(cache, checksum, env, query, &igasMeter, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
-	var qResult types.QueryResult
-	err = json.Unmarshal(data, &qResult)
+	var qres types.QueryResponse
+	err = json.Unmarshal(data, &qres)
 	require.NoError(t, err)
-	require.Equal(t, "", qResult.Err)
-	require.Equal(t, `{"sum":39}`, string(qResult.Ok))
+	require.Equal(t, "", qres.Err)
+	require.Equal(t, `{"sum":39}`, string(qres.Ok))
 
 	// query reduce (multiple iterators at once)
 	query = []byte(`{"reducer":{}}`)
 	data, _, err = Query(cache, checksum, env, query, &igasMeter, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
-	var reduced types.QueryResult
+	var reduced types.QueryResponse
 	err = json.Unmarshal(data, &reduced)
 	require.NoError(t, err)
 	require.Equal(t, "", reduced.Err)
@@ -220,7 +220,7 @@ func TestQueueIteratorRaces(t *testing.T) {
 		query := []byte(`{"reducer":{}}`)
 		data, _, err := Query(cache, checksum, env, query, &igasMeter, store, api, &querier, TESTING_GAS_LIMIT, TESTING_PRINT_DEBUG)
 		require.NoError(t, err)
-		var reduced types.QueryResult
+		var reduced types.QueryResponse
 		err = json.Unmarshal(data, &reduced)
 		require.NoError(t, err)
 		require.Equal(t, "", reduced.Err)
@@ -261,7 +261,7 @@ func TestQueueIteratorLimit(t *testing.T) {
 	checksum, querier, api := setup.checksum, setup.querier, setup.api
 
 	var err error
-	var qResult types.QueryResult
+	var qres types.QueryResponse
 	var gasLimit uint64
 
 	// Open 5000 iterators
@@ -273,10 +273,10 @@ func TestQueueIteratorLimit(t *testing.T) {
 	env := MockEnvBin(t)
 	data, _, err := Query(cache, checksum, env, query, &igasMeter, store, api, &querier, gasLimit, TESTING_PRINT_DEBUG)
 	require.NoError(t, err)
-	err = json.Unmarshal(data, &qResult)
+	err = json.Unmarshal(data, &qres)
 	require.NoError(t, err)
-	require.Equal(t, "", qResult.Err)
-	require.Equal(t, `{}`, string(qResult.Ok))
+	require.Equal(t, "", qres.Err)
+	require.Equal(t, `{}`, string(qres.Ok))
 
 	// Open 35000 iterators
 	gasLimit = TESTING_GAS_LIMIT * 4

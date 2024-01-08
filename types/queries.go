@@ -6,24 +6,24 @@ import (
 
 //-------- Queries --------
 
-// QueryResult is the Go counterpart of `ContractResult<Binary>`.
+// QueryResponse is the Go counterpart of `ContractResult<Binary>`.
 // The JSON annotations are used for deserializing directly. There is a custom serializer below.
-type QueryResult queryResultImpl
+type QueryResponse queryResponseImpl
 
-type queryResultImpl struct {
+type queryResponseImpl struct {
 	Ok  []byte `json:"ok,omitempty"`
 	Err string `json:"error,omitempty"`
 }
 
-// A custom serializer that allows us to map QueryResult instances to the Rust
+// A custom serializer that allows us to map QueryResponse instances to the Rust
 // enum `ContractResult<Binary>`
-func (q QueryResult) MarshalJSON() ([]byte, error) {
+func (q QueryResponse) MarshalJSON() ([]byte, error) {
 	// In case both Ok and Err are empty, this is interpreted and seralized
 	// as an Ok case with no data because errors must not be empty.
 	if len(q.Ok) == 0 && len(q.Err) == 0 {
 		return []byte(`{"ok":""}`), nil
 	}
-	return json.Marshal(queryResultImpl(q))
+	return json.Marshal(queryResponseImpl(q))
 }
 
 //-------- Querier -----------
@@ -72,14 +72,14 @@ func RustQuery(querier Querier, binRequest []byte, gasLimit uint64) QuerierResul
 
 // This is a 2-level result
 type QuerierResult struct {
-	Ok  *QueryResult `json:"ok,omitempty"`
-	Err *SystemError `json:"error,omitempty"`
+	Ok  *QueryResponse `json:"ok,omitempty"`
+	Err *SystemError   `json:"error,omitempty"`
 }
 
 func ToQuerierResult(response []byte, err error) QuerierResult {
 	if err == nil {
 		return QuerierResult{
-			Ok: &QueryResult{
+			Ok: &QueryResponse{
 				Ok: response,
 			},
 		}
@@ -91,7 +91,7 @@ func ToQuerierResult(response []byte, err error) QuerierResult {
 		}
 	}
 	return QuerierResult{
-		Ok: &QueryResult{
+		Ok: &QueryResponse{
 			Err: err.Error(),
 		},
 	}

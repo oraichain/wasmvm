@@ -26,12 +26,12 @@ default = []
 backtraces = []
 
 [dependencies]
-cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm.git", rev = "034c89c", features = [
+cosmwasm-std = { git = "https://github.com/oraichain/cosmwasm.git", tag = "v1.3.0", features = [
     "iterator",
     "staking",
     "stargate",
 ] }
-cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm.git", rev = "034c89c", features = [
+cosmwasm-vm = { git = "https://github.com/oraichain/cosmwasm.git", tag = "v1.3.0", features = [
     "cranelift",
     "iterator",
     "staking",
