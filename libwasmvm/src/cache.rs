@@ -248,7 +248,12 @@ fn do_unpin(
 #[repr(C)]
 #[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
 pub struct AnalysisReport {
+    /// `true` if and only if all required ibc exports exist as exported functions.
+    /// This does not guarantee they are functional or even have the correct signatures.
     pub has_ibc_entry_points: bool,
+    /// A UTF-8 encoded comma separated list of all entrypoints that
+    /// are exported by the contract.
+    pub entrypoints: UnmanagedVector,
     /// An UTF-8 encoded comma separated list of reqired capabilities.
     /// This is never None/nil.
     pub required_capabilities: UnmanagedVector,
@@ -259,20 +264,26 @@ impl From<cosmwasm_vm::AnalysisReport> for AnalysisReport {
         let cosmwasm_vm::AnalysisReport {
             has_ibc_entry_points,
             required_capabilities,
-            ..
+            entrypoints,
         } = report;
 
         let required_capabilities_utf8 = set_to_csv(required_capabilities).into_bytes();
+        let entrypoints = set_to_csv(entrypoints).into_bytes();
         AnalysisReport {
             has_ibc_entry_points,
             required_capabilities: UnmanagedVector::new(Some(required_capabilities_utf8)),
+            entrypoints: UnmanagedVector::new(Some(entrypoints)),
         }
     }
 }
 
-fn set_to_csv(set: BTreeSet<String>) -> String {
-    let mut list: Vec<String> = set.into_iter().collect();
-    list.sort_unstable();
+/// Takes a set of string-like elements and returns a comma-separated list.
+/// Since no escaping or quoting is applied to the elements, the caller needs to ensure
+/// only simple alphanumeric values are used.
+///
+/// The order of the output elements is determined by the iteration order of the provided set.
+fn set_to_csv(set: BTreeSet<impl AsRef<str>>) -> String {
+    let list: Vec<&str> = set.iter().map(|e| e.as_ref()).collect();
     list.join(",")
 }
 
@@ -397,7 +408,7 @@ mod tests {
     use crate::assert_approx_eq;
 
     use super::*;
-    use std::iter::FromIterator;
+    use std::{cmp::Ordering, iter::FromIterator};
     use tempfile::TempDir;
 
     static HACKATOM: &[u8] = include_bytes!("../../testdata/hackatom.wasm");
@@ -745,7 +756,7 @@ mod tests {
 
     #[test]
     fn set_to_csv_works() {
-        assert_eq!(set_to_csv(BTreeSet::new()), "");
+        assert_eq!(set_to_csv(BTreeSet::<String>::new()), "");
         assert_eq!(
             set_to_csv(BTreeSet::from_iter(vec!["foo".to_string()])),
             "foo",
@@ -770,6 +781,98 @@ mod tests {
                 "C".to_string(),
             ])),
             "A,AA,B,C,a,aa,b,c",
+        );
+
+        // str
+        assert_eq!(
+            set_to_csv(BTreeSet::from_iter(vec![
+                "a", "aa", "b", "c", "A", "AA", "B", "C",
+            ])),
+            "A,AA,B,C,a,aa,b,c",
+        );
+
+        // custom type with numeric ordering
+        #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+        enum Number {
+            One = 1,
+            Two = 2,
+            Three = 3,
+            Eleven = 11,
+            Twelve = 12,
+            Zero = 0,
+            MinusOne = -1,
+        }
+
+        impl AsRef<str> for Number {
+            fn as_ref(&self) -> &str {
+                use Number::*;
+                match self {
+                    One => "1",
+                    Two => "2",
+                    Three => "3",
+                    Eleven => "11",
+                    Twelve => "12",
+                    Zero => "0",
+                    MinusOne => "-1",
+                }
+            }
+        }
+
+        assert_eq!(
+            set_to_csv(BTreeSet::from_iter([
+                Number::One,
+                Number::Two,
+                Number::Three,
+                Number::Eleven,
+                Number::Twelve,
+                Number::Zero,
+                Number::MinusOne,
+            ])),
+            "-1,0,1,2,3,11,12",
+        );
+
+        // custom type with lexicographical ordering
+        #[derive(PartialEq, Eq)]
+        enum Color {
+            Red,
+            Green,
+            Blue,
+            Yellow,
+        }
+
+        impl AsRef<str> for Color {
+            fn as_ref(&self) -> &str {
+                use Color::*;
+                match self {
+                    Red => "red",
+                    Green => "green",
+                    Blue => "blue",
+                    Yellow => "yellow",
+                }
+            }
+        }
+
+        impl Ord for Color {
+            fn cmp(&self, other: &Self) -> Ordering {
+                // sort by name
+                self.as_ref().cmp(other.as_ref())
+            }
+        }
+
+        impl PartialOrd for Color {
+            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+                Some(self.cmp(other))
+            }
+        }
+
+        assert_eq!(
+            set_to_csv(BTreeSet::from_iter([
+                Color::Red,
+                Color::Green,
+                Color::Blue,
+                Color::Yellow,
+            ])),
+            "blue,green,red,yellow",
         );
     }
 

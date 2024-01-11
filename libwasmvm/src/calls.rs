@@ -1,15 +1,16 @@
 //! A module containing calls into smart contracts via Cache and Instance.
 
+use std::convert::TryInto;
+use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::time::SystemTime;
+use time::{format_description::well_known::Rfc3339, OffsetDateTime};
+
 use cosmwasm_vm::{
     call_execute_raw, call_ibc_channel_close_raw, call_ibc_channel_connect_raw,
     call_ibc_channel_open_raw, call_ibc_packet_ack_raw, call_ibc_packet_receive_raw,
     call_ibc_packet_timeout_raw, call_instantiate_raw, call_migrate_raw, call_query_raw,
     call_reply_raw, call_sudo_raw, Backend, Cache, Instance, InstanceOptions, VmResult,
 };
-use std::convert::TryInto;
-use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::time::SystemTime;
-use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 use crate::api::GoApi;
 use crate::args::{ARG1, ARG2, ARG3, CACHE_ARG, CHECKSUM_ARG, GAS_REPORT_ARG};
@@ -467,7 +468,8 @@ fn do_call_2_args(
 
     let backend = into_backend(db, api, querier);
     let options = InstanceOptions { gas_limit };
-    let mut instance = cache.get_instance(&checksum, backend, options)?;
+    let mut instance: Instance<GoApi, GoStorage, GoQuerier> =
+        cache.get_instance(&checksum, backend, options)?;
 
     // If print_debug = false, use default debug handler from cosmwasm-vm, which discards messages
     if print_debug {

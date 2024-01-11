@@ -53,7 +53,7 @@ pub struct GoApi {
 unsafe impl Send for GoApi {}
 
 impl BackendApi for GoApi {
-    fn canonical_address(&self, human: &str) -> BackendResult<Vec<u8>> {
+    fn addr_canonicalize(&self, human: &str) -> BackendResult<Vec<u8>> {
         let mut output = UnmanagedVector::default();
         let mut error_msg = UnmanagedVector::default();
         let mut used_gas = 0_u64;
@@ -86,7 +86,7 @@ impl BackendApi for GoApi {
         (result, gas_info)
     }
 
-    fn human_address(&self, canonical: &[u8]) -> BackendResult<String> {
+    fn addr_humanize(&self, canonical: &[u8]) -> BackendResult<String> {
         let mut output = UnmanagedVector::default();
         let mut error_msg = UnmanagedVector::default();
         let mut used_gas = 0_u64;
@@ -124,5 +124,13 @@ impl BackendApi for GoApi {
             .ok_or_else(|| BackendError::unknown("Unset output"))
             .and_then(|human_data| String::from_utf8(human_data).map_err(BackendError::from));
         (result, gas_info)
+    }
+
+    fn addr_validate(&self, input: &str) -> BackendResult<()> {
+        let (res, gas_info) = self.addr_canonicalize(input);
+        match res {
+            Ok(_) => (Ok(()), gas_info),
+            Err(err) => (Err(err), gas_info),
+        }
     }
 }
