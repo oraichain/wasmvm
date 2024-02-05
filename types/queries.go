@@ -106,6 +106,7 @@ type QueryRequest struct {
 	Staking      *StakingQuery      `json:"staking,omitempty"`
 	Distribution *DistributionQuery `json:"distribution,omitempty"`
 	Stargate     *StargateQuery     `json:"stargate,omitempty"`
+	Grpc         *GrpcQuery         `json:"grpc,omitempty"`
 	Wasm         *WasmQuery         `json:"wasm,omitempty"`
 }
 
@@ -142,7 +143,7 @@ type AllBalancesQuery struct {
 
 // AllBalancesResponse is the expected response to AllBalancesQuery
 type AllBalancesResponse struct {
-	Amount Coins `json:"amount"`
+	Amount Array[Coin] `json:"amount"`
 }
 
 type DenomMetadataQuery struct {
@@ -191,59 +192,7 @@ type ListChannelsQuery struct {
 }
 
 type ListChannelsResponse struct {
-	Channels IBCChannels `json:"channels"`
-}
-
-// IBCChannels must JSON encode empty array as [] (not null) for consistency with Rust parser
-type IBCChannels []IBCChannel
-
-// MarshalJSON ensures that we get [] for empty arrays
-func (e IBCChannels) MarshalJSON() ([]byte, error) {
-	if len(e) == 0 {
-		return []byte("[]"), nil
-	}
-	var raw []IBCChannel = e
-	return json.Marshal(raw)
-}
-
-// UnmarshalJSON ensures that we get [] for empty arrays
-func (e *IBCChannels) UnmarshalJSON(data []byte) error {
-	// make sure we deserialize [] back to null
-	if string(data) == "[]" || string(data) == "null" {
-		return nil
-	}
-	var raw []IBCChannel
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-	*e = raw
-	return nil
-}
-
-// IBCEndpoints must JSON encode empty array as [] (not null) for consistency with Rust parser
-type IBCEndpoints []IBCEndpoint
-
-// MarshalJSON ensures that we get [] for empty arrays
-func (e IBCEndpoints) MarshalJSON() ([]byte, error) {
-	if len(e) == 0 {
-		return []byte("[]"), nil
-	}
-	var raw []IBCEndpoint = e
-	return json.Marshal(raw)
-}
-
-// UnmarshalJSON ensures that we get [] for empty arrays
-func (e *IBCEndpoints) UnmarshalJSON(data []byte) error {
-	// make sure we deserialize [] back to null
-	if string(data) == "[]" || string(data) == "null" {
-		return nil
-	}
-	var raw []IBCEndpoint
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-	*e = raw
-	return nil
+	Channels Array[IBCChannel] `json:"channels"`
 }
 
 type ChannelQuery struct {
@@ -269,33 +218,7 @@ type AllValidatorsQuery struct{}
 
 // AllValidatorsResponse is the expected response to AllValidatorsQuery
 type AllValidatorsResponse struct {
-	Validators Validators `json:"validators"`
-}
-
-// Validators must JSON encode empty array as []
-type Validators []Validator
-
-// MarshalJSON ensures that we get [] for empty arrays
-func (v Validators) MarshalJSON() ([]byte, error) {
-	if len(v) == 0 {
-		return []byte("[]"), nil
-	}
-	var raw []Validator = v
-	return json.Marshal(raw)
-}
-
-// UnmarshalJSON ensures that we get [] for empty arrays
-func (v *Validators) UnmarshalJSON(data []byte) error {
-	// make sure we deserialize [] back to null
-	if string(data) == "[]" || string(data) == "null" {
-		return nil
-	}
-	var raw []Validator
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-	*v = raw
-	return nil
+	Validators Array[Validator] `json:"validators"`
 }
 
 type ValidatorQuery struct {
@@ -329,32 +252,7 @@ type DelegationQuery struct {
 
 // AllDelegationsResponse is the expected response to AllDelegationsQuery
 type AllDelegationsResponse struct {
-	Delegations Delegations `json:"delegations"`
-}
-
-type Delegations []Delegation
-
-// MarshalJSON ensures that we get [] for empty arrays
-func (d Delegations) MarshalJSON() ([]byte, error) {
-	if len(d) == 0 {
-		return []byte("[]"), nil
-	}
-	var raw []Delegation = d
-	return json.Marshal(raw)
-}
-
-// UnmarshalJSON ensures that we get [] for empty arrays
-func (d *Delegations) UnmarshalJSON(data []byte) error {
-	// make sure we deserialize [] back to null
-	if string(data) == "[]" || string(data) == "null" {
-		return nil
-	}
-	var raw []Delegation
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-	*d = raw
-	return nil
+	Delegations Array[Delegation] `json:"delegations"`
 }
 
 type Delegation struct {
@@ -416,17 +314,17 @@ type DelegatorValidatorsResponse struct {
 	Validators []string `json:"validators"`
 }
 
-// DelegationResponse is the expected response to DelegationsQuery
+// DelegationResponse is the expected response to Array[Delegation]Query
 type DelegationResponse struct {
 	Delegation *FullDelegation `json:"delegation,omitempty"`
 }
 
 type FullDelegation struct {
-	Delegator          string `json:"delegator"`
-	Validator          string `json:"validator"`
-	Amount             Coin   `json:"amount"`
-	AccumulatedRewards Coins  `json:"accumulated_rewards"`
-	CanRedelegate      Coin   `json:"can_redelegate"`
+	Delegator          string      `json:"delegator"`
+	Validator          string      `json:"validator"`
+	Amount             Coin        `json:"amount"`
+	AccumulatedRewards Array[Coin] `json:"accumulated_rewards"`
+	CanRedelegate      Coin        `json:"can_redelegate"`
 }
 
 type BondedDenomResponse struct {
@@ -435,14 +333,29 @@ type BondedDenomResponse struct {
 
 // StargateQuery is encoded the same way as abci_query, with path and protobuf encoded request data.
 // The format is defined in [ADR-21](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-021-protobuf-query-encoding.md).
-// The response is protobuf encoded data directly without a JSON response wrapper.
-// The caller is responsible for compiling the proper protobuf definitions for both requests and responses.
+// The response is supposed to always be protobuf encoded data, but is JSON encoded on some chains.
+// The caller is responsible for compiling the proper type definitions for both requests and responses.
 type StargateQuery struct {
-	// this is the fully qualified service path used for routing,
-	// eg. custom/cosmos_sdk.x.bank.v1.Query/QueryBalance
-	Path string `json:"path"`
-	// this is the expected protobuf message type (not any), binary encoded
+	// The expected protobuf message type (not [Any](https://protobuf.dev/programming-guides/proto3/#any)), binary encoded
 	Data []byte `json:"data"`
+	// The fully qualified endpoint path used for routing.
+	// It follows the format `/service_path/method_name`,
+	// eg. "/cosmos.authz.v1beta1.Query/Grants"
+	Path string `json:"path"`
+}
+
+// GrpcQuery queries the chain using a grpc query.
+// This allows to query information that is not exposed in our API.
+// The chain needs to allowlist the supported queries.
+//
+// The returned data is protobuf encoded. The protobuf type depends on the query.
+type GrpcQuery struct {
+	// The expected protobuf message type (not [Any](https://protobuf.dev/programming-guides/proto3/#any)), binary encoded
+	Data []byte `json:"data"`
+	// The fully qualified endpoint path used for routing.
+	// It follows the format `/service_path/method_name`,
+	// eg. "/cosmos.authz.v1beta1.Query/Grants"
+	Path string `json:"path"`
 }
 
 type WasmQuery struct {

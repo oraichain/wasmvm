@@ -361,10 +361,29 @@ func MockHumanizeAddress(canon []byte) (string, uint64, error) {
 	return human, CostHuman, nil
 }
 
+func MockValidateAddress(input string) (gasCost uint64, _ error) {
+	canonicalized, gasCostCanonicalize, err := MockCanonicalizeAddress(input)
+	gasCost += gasCostCanonicalize
+	if err != nil {
+		return gasCost, err
+	}
+	humanized, gasCostHumanize, err := MockHumanizeAddress(canonicalized)
+	gasCost += gasCostHumanize
+	if err != nil {
+		return gasCost, err
+	}
+	if humanized != strings.ToLower(input) {
+		return gasCost, fmt.Errorf("address validation failed")
+	}
+
+	return gasCost, nil
+}
+
 func NewMockAPI() *types.GoAPI {
 	return &types.GoAPI{
 		HumanizeAddress:     MockHumanizeAddress,
 		CanonicalizeAddress: MockCanonicalizeAddress,
+		ValidateAddress:     MockValidateAddress,
 	}
 }
 
@@ -393,8 +412,8 @@ type MockQuerier struct {
 
 var _ types.Querier = &MockQuerier{}
 
-func DefaultQuerier(contractAddr string, coins types.Coins) types.Querier {
-	balances := map[string]types.Coins{
+func DefaultQuerier(contractAddr string, coins types.Array[types.Coin]) types.Querier {
+	balances := map[string]types.Array[types.Coin]{
 		contractAddr: coins,
 	}
 	return &MockQuerier{
@@ -430,11 +449,11 @@ func (q MockQuerier) GasConsumed() uint64 {
 }
 
 type BankQuerier struct {
-	Balances map[string]types.Coins
+	Balances map[string]types.Array[types.Coin]
 }
 
-func NewBankQuerier(balances map[string]types.Coins) BankQuerier {
-	bal := make(map[string]types.Coins, len(balances))
+func NewBankQuerier(balances map[string]types.Array[types.Coin]) BankQuerier {
+	bal := make(map[string]types.Array[types.Coin], len(balances))
 	for k, v := range balances {
 		dst := make([]types.Coin, len(v))
 		copy(dst, v)
@@ -521,7 +540,7 @@ func (q ReflectCustom) Query(request json.RawMessage) ([]byte, error) {
 
 func TestBankQuerierAllBalances(t *testing.T) {
 	addr := "foobar"
-	balance := types.Coins{types.NewCoin(12345678, "ATOM"), types.NewCoin(54321, "ETH")}
+	balance := types.Array[types.Coin]{types.NewCoin(12345678, "ATOM"), types.NewCoin(54321, "ETH")}
 	q := DefaultQuerier(addr, balance)
 
 	// query existing account
@@ -557,7 +576,7 @@ func TestBankQuerierAllBalances(t *testing.T) {
 
 func TestBankQuerierBalance(t *testing.T) {
 	addr := "foobar"
-	balance := types.Coins{types.NewCoin(12345678, "ATOM"), types.NewCoin(54321, "ETH")}
+	balance := types.Array[types.Coin]{types.NewCoin(12345678, "ATOM"), types.NewCoin(54321, "ETH")}
 	q := DefaultQuerier(addr, balance)
 
 	// query existing account with matching denom

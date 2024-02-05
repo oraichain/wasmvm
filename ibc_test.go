@@ -22,7 +22,7 @@ func TestIBC(t *testing.T) {
 	wasm, err := os.ReadFile(IBC_TEST_CONTRACT)
 	require.NoError(t, err)
 
-	checksum, err := vm.StoreCode(wasm)
+	checksum, _, err := vm.StoreCode(wasm, TESTING_GAS_LIMIT)
 	require.NoError(t, err)
 
 	code, err := vm.GetCode(checksum)
@@ -96,7 +96,7 @@ func TestIBCHandshake(t *testing.T) {
 	// instantiate it with this store
 	store := api.NewLookup(gasMeter1)
 	goapi := api.NewMockAPI()
-	balance := types.Coins{}
+	balance := types.Array[types.Coin]{}
 	querier := api.DefaultQuerier(api.MOCK_CONTRACT_ADDR, balance)
 
 	// instantiate
@@ -169,7 +169,7 @@ func TestIBCPacketDispatch(t *testing.T) {
 	// instantiate it with this store
 	store := api.NewLookup(gasMeter1)
 	goapi := api.NewMockAPI()
-	balance := types.Coins{}
+	balance := types.Array[types.Coin]{}
 	querier := api.DefaultQuerier(api.MOCK_CONTRACT_ADDR, balance)
 
 	// instantiate
@@ -210,9 +210,9 @@ func TestIBCPacketDispatch(t *testing.T) {
 		ID: id,
 		Result: types.SubMsgResult{
 			Ok: &types.SubMsgResponse{
-				Events: types.Events{{
+				Events: types.Array[types.Event]{{
 					Type: "instantiate",
-					Attributes: types.EventAttributes{
+					Attributes: types.Array[types.EventAttribute]{
 						{
 							Key:   "_contract_address",
 							Value: REFLECT_ADDR,
@@ -249,7 +249,7 @@ func TestIBCPacketDispatch(t *testing.T) {
 			Msgs: []types.CosmosMsg{{
 				Bank: &types.BankMsg{Send: &types.SendMsg{
 					ToAddress: "my-friend",
-					Amount:    types.Coins{types.NewCoin(12345678, "uatom")},
+					Amount:    types.Array[types.Coin]{types.NewCoin(12345678, "uatom")},
 				}},
 			}},
 		},
@@ -295,25 +295,23 @@ func TestAnalyzeCode(t *testing.T) {
 	// Store non-IBC contract
 	wasm, err := os.ReadFile(HACKATOM_TEST_CONTRACT)
 	require.NoError(t, err)
-	checksum, err := vm.StoreCode(wasm)
+	checksum, _, err := vm.StoreCode(wasm, TESTING_GAS_LIMIT)
 	require.NoError(t, err)
 	// and analyze
 	report, err := vm.AnalyzeCode(checksum)
 	require.NoError(t, err)
 	require.False(t, report.HasIBCEntryPoints)
-	require.Equal(t, "", report.RequiredFeatures)
 	require.Equal(t, "", report.RequiredCapabilities)
 
 	// Store IBC contract
 	wasm2, err := os.ReadFile(IBC_TEST_CONTRACT)
 	require.NoError(t, err)
-	checksum2, err := vm.StoreCode(wasm2)
+	checksum2, _, err := vm.StoreCode(wasm2, TESTING_GAS_LIMIT)
 	require.NoError(t, err)
 	// and analyze
 	report2, err := vm.AnalyzeCode(checksum2)
 	require.NoError(t, err)
 	require.True(t, report2.HasIBCEntryPoints)
-	require.Equal(t, "iterator,stargate", report2.RequiredFeatures)
 	require.Equal(t, "iterator,stargate", report2.RequiredCapabilities)
 }
 

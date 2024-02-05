@@ -53,7 +53,7 @@ serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 tempfile = "3.4.0"
 
 [build-dependencies]
-cbindgen = "0.24.3"
+cbindgen = "0.26.0"
 
 [profile.release]
 opt-level = 3
