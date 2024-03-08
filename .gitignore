@@ -15,3 +15,5 @@ tmp
 a.out
 
 target
+# macOS
+.DS_Store
